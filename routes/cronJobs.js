@@ -1,6 +1,5 @@
-const cron = require('node-cron');
 const db = require('../config/db');
-const fs = require('fs').promises; // Usamos fs.promises para trabajar con archivos de forma asíncrona
+const fs = require('fs').promises;
 const path = require('path');
 const { 
     sendContractExpiredEmailLandlord, 
@@ -10,35 +9,57 @@ const {
     sendRatingAvailableEmailLandlord 
 } = require('../utils/email');
 
-// Ruta del archivo JSON
+// Configure database pool with limits
+db.poolConfig = {
+    max: 10,
+    min: 2,
+    acquireTimeout: 30000,
+    idleTimeoutMillis: 30000
+};
+
 const notificationsFilePath = path.join(__dirname, '../data/notifications.json');
 
-// Función para leer el archivo JSON
+// Maximum retry attempts for database operations
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
+
+// Lock to prevent concurrent task execution
+let isTaskRunning = false;
+
+// Helper function for retry logic
+async function withRetry(operation, maxRetries = MAX_RETRIES) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            return await operation();
+        } catch (error) {
+            if (attempt === maxRetries) throw error;
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * attempt));
+        }
+    }
+}
+
 async function readNotifications() {
     try {
         const data = await fs.readFile(notificationsFilePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
         if (error.code === 'ENOENT') {
-            // Si el archivo no existe, lo creamos con un arreglo vacío
             await fs.writeFile(notificationsFilePath, JSON.stringify([]));
             return [];
         }
-        console.error('Error al leer notifications.json:', error);
+        console.error('Error reading notifications.json:', error);
         return [];
     }
 }
 
-// Función para escribir en el archivo JSON
 async function writeNotifications(notifications) {
     try {
         await fs.writeFile(notificationsFilePath, JSON.stringify(notifications, null, 2));
     } catch (error) {
-        console.error('Error al escribir en notifications.json:', error);
+        console.error('Error writing to notifications.json:', error);
     }
 }
 
-// Función para verificar si ya se envió una notificación
 async function hasNotificationBeenSent(agreementId, type, userEmail) {
     const notifications = await readNotifications();
     return notifications.some(
@@ -49,7 +70,6 @@ async function hasNotificationBeenSent(agreementId, type, userEmail) {
     );
 }
 
-// Función para registrar una notificación enviada
 async function logNotification(agreementId, type, userEmail) {
     const notifications = await readNotifications();
     notifications.push({
@@ -61,200 +81,219 @@ async function logNotification(agreementId, type, userEmail) {
     await writeNotifications(notifications);
 }
 
-// Función para notificar 1 día antes de la expiración
-async function notifyBeforeExpiration() {
+async function manageAgreements() {
+    if (isTaskRunning) {
+        return;
+    }
+
+    isTaskRunning = true;
     let connection;
     try {
-        connection = await db.getConnection();
+        connection = await withRetry(() => db.getConnection());
         await connection.beginTransaction();
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
+        const todayStr = today.toISOString().split('T')[0];
         const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-        const [agreements] = await connection.query(`
+        // Query for agreements expiring tomorrow
+        const [expiringAgreements] = await withRetry(() => connection.query(`
             SELECT a.*, p.title AS publication_title
             FROM agreements a
             JOIN publications p ON a.publication_id = p.id
             WHERE a.status = 'active' AND DATE(a.end_date) = ?
-        `, [tomorrowStr]);
+        `, [tomorrowStr]));
 
-        if (agreements.length === 0) {
-            console.log('No hay acuerdos que expiren mañana.');
-            return;
-        }
-
-        for (const agreement of agreements) {
-            const endDateStr = new Date(agreement.end_date).toLocaleDateString('es-CO', { timeZone: 'America/Bogota' });
-
-            // Verificar si ya se envió la notificación
-            const alreadyNotified = await hasNotificationBeenSent(agreement.id, 'agreement_expiring', agreement.tenant_email);
-            if (alreadyNotified) {
-                console.log(`Notificación ya enviada para el acuerdo ${agreement.contract_id} (expirando).`);
-                continue;
-            }
-
-            // Notificación al arrendatario
-            await connection.query(`
-                INSERT INTO notifications (user_email, type, message, created_at)
-                VALUES (?, 'agreement_expiring', ?, NOW())
-            `, [agreement.tenant_email, `Ey, tu acuerdo ${agreement.contract_id} con la publicación "${agreement.publication_title}" está por expirar mañana (${endDateStr}). Habla con el arrendador para ampliar el plazo o darlo por terminado.`]);
-
-            // Enviar correo al arrendatario
-            await sendContractExpiringEmailTenant(
-                agreement.tenant_email,
-                agreement.contract_id,
-                agreement.publication_title,
-                endDateStr
-            );
-
-            // Registrar la notificación en el archivo JSON
-            await logNotification(agreement.id, 'agreement_expiring', agreement.tenant_email);
-        }
-
-        await connection.commit();
-        console.log(`Notificaciones enviadas para ${agreements.length} acuerdos que expiran mañana.`);
-    } catch (error) {
-        if (connection) await connection.rollback();
-        console.error('Error en notificación de expiración:', error);
-    } finally {
-        if (connection) connection.release();
-    }
-}
-
-// Función para manejar la expiración de acuerdos
-async function expireAgreements() {
-    let connection;
-    try {
-        connection = await db.getConnection();
-        await connection.beginTransaction();
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayStr = today.toISOString().split('T')[0];
-
-        const [activeAgreements] = await connection.query(`
+        // Query for agreements to expire today or earlier
+        const [expiredAgreements] = await withRetry(() => connection.query(`
             SELECT a.*, p.title AS publication_title
             FROM agreements a
             JOIN publications p ON a.publication_id = p.id
             WHERE a.status = 'active' AND DATE(a.end_date) <= ?
-        `, [todayStr]);
+        `, [todayStr]));
 
-        if (activeAgreements.length === 0) {
-            console.log('No hay acuerdos para expirar en este momento.');
-            return;
-        }
-
-        for (const agreement of activeAgreements) {
+        // Process expiring agreements
+        for (const agreement of expiringAgreements) {
             const endDateStr = new Date(agreement.end_date).toLocaleDateString('es-CO', { timeZone: 'America/Bogota' });
 
-            await connection.query('UPDATE agreements SET status = ? WHERE id = ?', ['expired', agreement.id]);
-            await connection.query('UPDATE publications SET rental_status = ? WHERE id = ?', ['disponible', agreement.publication_id]);
-            await connection.query('INSERT INTO agreement_history (agreement_id, action) VALUES (?, ?)', [agreement.id, 'expired']);
-
-            // Notificación de expiración para el arrendador
-            let alreadyNotified = await hasNotificationBeenSent(agreement.id, 'agreement_expired', agreement.landlord_email);
-            if (!alreadyNotified) {
-                await connection.query('INSERT INTO notifications (user_email, type, message, created_at) VALUES (?, ?, ?, NOW())', [agreement.landlord_email, 'agreement_expired', `El contrato ${agreement.contract_id} ha expirado el ${endDateStr}. Revisa los detalles en tu cuenta.`]);
-                await logNotification(agreement.id, 'agreement_expired', agreement.landlord_email);
+            if (await hasNotificationBeenSent(agreement.id, 'agreement_expiring', agreement.tenant_email)) {
+                continue;
             }
 
-            // Notificación de expiración para el arrendatario
-            alreadyNotified = await hasNotificationBeenSent(agreement.id, 'agreement_expired', agreement.tenant_email);
-            if (!alreadyNotified) {
-                await connection.query('INSERT INTO notifications (user_email, type, message, created_at) VALUES (?, ?, ?, NOW())', [agreement.tenant_email, 'agreement_expired', `El contrato ${agreement.contract_id} ha expirado el ${endDateStr}. Revisa los detalles en tu cuenta.`]);
-                await logNotification(agreement.id, 'agreement_expired', agreement.tenant_email);
-            }
+            await withRetry(() => connection.query(`
+                INSERT INTO notifications (user_email, type, message, created_at)
+                VALUES (?, 'agreement_expiring', ?, NOW())
+            `, [agreement.tenant_email, `Ey, tu acuerdo ${agreement.contract_id} con la publicación "${agreement.publication_title}" está por expirar mañana (${endDateStr}). Habla con el arrendador para ampliar el plazo o darlo por terminado.`]));
 
-            // Notificaciones para calificación
-            alreadyNotified = await hasNotificationBeenSent(agreement.id, 'rating_available', agreement.tenant_email);
-            if (!alreadyNotified) {
-                await connection.query('INSERT INTO notifications (user_email, type, message, created_at) VALUES (?, ?, ?, NOW())', [agreement.tenant_email, 'rating_available', `Ya puedes calificar al arrendador del contrato ${agreement.contract_id} con la publicación "${agreement.publication_title}".`]);
-                await logNotification(agreement.id, 'rating_available', agreement.tenant_email);
-            }
-
-            alreadyNotified = await hasNotificationBeenSent(agreement.id, 'rating_available', agreement.landlord_email);
-            if (!alreadyNotified) {
-                await connection.query('INSERT INTO notifications (user_email, type, message, created_at) VALUES (?, ?, ?, NOW())', [agreement.landlord_email, 'rating_available', `Ya puedes calificar al arrendatario del contrato ${agreement.contract_id} con la publicación "${agreement.publication_title}".`]);
-                await logNotification(agreement.id, 'rating_available', agreement.landlord_email);
-            }
-
-            // Enviar correos
             try {
-                if (!await hasNotificationBeenSent(agreement.id, 'agreement_expired', agreement.landlord_email)) {
-                    await sendContractExpiredEmailLandlord(
-                        agreement.landlord_email,
-                        agreement.publication_title,
-                        agreement.contract_id,
-                        endDateStr
-                    );
-                }
-                if (!await hasNotificationBeenSent(agreement.id, 'agreement_expired', agreement.tenant_email)) {
-                    await sendContractExpiredEmailTenant(
-                        agreement.tenant_email,
-                        agreement.publication_title,
-                        agreement.contract_id,
-                        endDateStr
-                    );
-                }
-                if (!await hasNotificationBeenSent(agreement.id, 'rating_available', agreement.tenant_email)) {
-                    await sendRatingAvailableEmailTenant(
-                        agreement.tenant_email,
-                        agreement.contract_id,
-                        agreement.publication_title
-                    );
-                }
-                if (!await hasNotificationBeenSent(agreement.id, 'rating_available', agreement.landlord_email)) {
-                    await sendRatingAvailableEmailLandlord(
-                        agreement.landlord_email,
-                        agreement.contract_id,
-                        agreement.publication_title
-                    );
-                }
-                console.log(`Correos enviados para el acuerdo ${agreement.contract_id}`);
+                const sendEmailWithTimeout = (emailFn, ...args) => {
+                    return Promise.race([
+                        emailFn(...args),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timeout')), 10000))
+                    ]);
+                };
+
+                await sendEmailWithTimeout(
+                    sendContractExpiringEmailTenant,
+                    agreement.tenant_email,
+                    agreement.contract_id,
+                    agreement.publication_title,
+                    endDateStr
+                );
             } catch (emailError) {
-                console.error(`Error al enviar correos para el acuerdo ${agreement.contract_id}:`, emailError);
+                console.error(`Error sending expiring email for agreement ${agreement.contract_id}:`, emailError);
+            }
+
+            await logNotification(agreement.id, 'agreement_expiring', agreement.tenant_email);
+        }
+
+        // Process expired agreements
+        for (const agreement of expiredAgreements) {
+            const endDateStr = new Date(agreement.end_date).toLocaleDateString('es-CO', { timeZone: 'America/Bogota' });
+
+            await withRetry(() => connection.query('UPDATE agreements SET status = ? WHERE id = ?', ['expired', agreement.id]));
+            await withRetry(() => connection.query('UPDATE publications SET rental_status = ? WHERE id = ?', ['disponible', agreement.publication_id]));
+            await withRetry(() => connection.query('INSERT INTO agreement_history (agreement_id, action) VALUES (?, ?)', [agreement.id, 'expired']));
+
+            // Landlord: Expired notification and email
+            if (!await hasNotificationBeenSent(agreement.id, 'agreement_expired', agreement.landlord_email)) {
+                await withRetry(() => connection.query(`
+                    INSERT INTO notifications (user_email, type, message, created_at)
+                    VALUES (?, 'agreement_expired', ?, NOW())
+                `, [agreement.landlord_email, `El contrato ${agreement.contract_id} ha expirado el ${endDateStr}. Revisa los detalles en tu cuenta.`]));
+                await logNotification(agreement.id, 'agreement_expired', agreement.landlord_email);
+
+                try {
+                    const sendEmailWithTimeout = (emailFn, ...args) => {
+                        return Promise.race([
+                            emailFn(...args),
+                            new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timeout')), 10000))
+                        ]);
+                    };
+
+                    await sendEmailWithTimeout(
+                        sendContractExpiredEmailLandlord,
+                        agreement.landlord_email,
+                        agreement.publication_title,
+                        agreement.contract_id,
+                        endDateStr
+                    );
+                } catch (emailError) {
+                    console.error(`Error sending expired email to landlord for agreement ${agreement.contract_id}:`, emailError);
+                }
+            }
+
+            // Tenant: Expired notification and email
+            if (!await hasNotificationBeenSent(agreement.id, 'agreement_expired', agreement.tenant_email)) {
+                await withRetry(() => connection.query(`
+                    INSERT INTO notifications (user_email, type, message, created_at)
+                    VALUES (?, 'agreement_expired', ?, NOW())
+                `, [agreement.tenant_email, `El contrato ${agreement.contract_id} ha expirado el ${endDateStr}. Revisa los detalles en tu cuenta.`]));
+                await logNotification(agreement.id, 'agreement_expired', agreement.tenant_email);
+
+                try {
+                    const sendEmailWithTimeout = (emailFn, ...args) => {
+                        return Promise.race([
+                            emailFn(...args),
+                            new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timeout')), 10000))
+                        ]);
+                    };
+
+                    await sendEmailWithTimeout(
+                        sendContractExpiredEmailTenant,
+                        agreement.tenant_email,
+                        agreement.publication_title,
+                        agreement.contract_id,
+                        endDateStr
+                    );
+                } catch (emailError) {
+                    console.error(`Error sending expired email to tenant for agreement ${agreement.contract_id}:`, emailError);
+                }
+            }
+
+            // Tenant: Rating available notification and email
+            if (!await hasNotificationBeenSent(agreement.id, 'rating_available', agreement.tenant_email)) {
+                await withRetry(() => connection.query(`
+                    INSERT INTO notifications (user_email, type, message, created_at)
+                    VALUES (?, 'rating_available', ?, NOW())
+                `, [agreement.tenant_email, `Ya puedes calificar al arrendador del contrato ${agreement.contract_id} con la publicación "${agreement.publication_title}".`]));
+                await logNotification(agreement.id, 'rating_available', agreement.tenant_email);
+
+                try {
+                    const sendEmailWithTimeout = (emailFn, ...args) => {
+                        return Promise.race([
+                            emailFn(...args),
+                            new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timeout')), 10000))
+                        ]);
+                    };
+
+                    await sendEmailWithTimeout(
+                        sendRatingAvailableEmailTenant,
+                        agreement.tenant_email,
+                        agreement.contract_id,
+                        agreement.publication_title
+                    );
+                } catch (emailError) {
+                    console.error(`Error sending rating email to tenant for agreement ${agreement.contract_id}:`, emailError);
+                }
+            }
+
+            // Landlord: Rating available notification and email
+            if (!await hasNotificationBeenSent(agreement.id, 'rating_available', agreement.landlord_email)) {
+                await withRetry(() => connection.query(`
+                    INSERT INTO notifications (user_email, type, message, created_at)
+                    VALUES (?, 'rating_available', ?, NOW())
+                `, [agreement.landlord_email, `Ya puedes calificar al arrendatario del contrato ${agreement.contract_id} con la publicación "${agreement.publication_title}".`]));
+                await logNotification(agreement.id, 'rating_available', agreement.landlord_email);
+
+                try {
+                    const sendEmailWithTimeout = (emailFn, ...args) => {
+                        return Promise.race([
+                            emailFn(...args),
+                            new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timeout')), 10000))
+                        ]);
+                    };
+
+                    await sendEmailWithTimeout(
+                        sendRatingAvailableEmailLandlord,
+                        agreement.landlord_email,
+                        agreement.contract_id,
+                        agreement.publication_title
+                    );
+                } catch (emailError) {
+                    console.error(`Error sending rating email to landlord for agreement ${agreement.contract_id}:`, emailError);
+                }
             }
         }
 
-        await connection.commit();
-        console.log(`Tarea de expiración ejecutada a las ${new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })}. ${activeAgreements.length} acuerdos expirados.`);
+        await withRetry(() => connection.commit());
+        console.log(`Analizado contratos, ${expiringAgreements.length} notificados, ${expiredAgreements.length} expirados. Próxima revisión en 12 horas.`);
     } catch (error) {
-        if (connection) await connection.rollback();
-        console.error('Error en la tarea de expiración:', error);
+        console.error('Error in agreement management task:', error);
+        if (connection) await withRetry(() => connection.rollback());
     } finally {
-        if (connection) connection.release();
+        if (connection) {
+            connection.release();
+            connection.destroy();
+        }
+        isTaskRunning = false;
     }
 }
 
-// Programar las tareas
-cron.schedule('0 * * * *', async () => {
-    console.log('Iniciando tarea de expiración de acuerdos...');
-    await expireAgreements();
-}, { timezone: 'America/Bogota' });
+// Start agreement management on server startup and every 12 hours
+function startAgreementManagement() {
+    // Run once 5 seconds after server startup
+    setTimeout(async () => {
+        await manageAgreements();
+    }, 5000);
 
-cron.schedule('0 8 * * *', async () => {
-    console.log('Iniciando tarea de notificación de contratos por expirar...');
-    await notifyBeforeExpiration();
-}, { timezone: 'America/Bogota' });
+    // Run every 12 hours (43,200,000 milliseconds)
+    setInterval(async () => {
+        await manageAgreements();
+    }, 12 * 60 * 60 * 1000);
+}
 
-// Ejecutar las tareas al iniciar el servidor
-expireAgreements().then(() => {
-    console.log('Tarea de expiración inicial completada al iniciar el servidor.');
-});
-notifyBeforeExpiration().then(() => {
-    console.log('Tarea de notificación inicial completada al iniciar el servidor.');
-});
-
-// Asegurar que las tareas sigan ejecutándose incluso si hay errores no capturados
-process.on('uncaughtException', (error) => {
-    console.error('Error no capturado:', error);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Rechazo no manejado en:', promise, 'razón:', reason);
-});
-
-module.exports = { expireAgreements, notifyBeforeExpiration };
+module.exports = { manageAgreements, startAgreementManagement };
