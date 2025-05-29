@@ -14,6 +14,8 @@ const arrendatarioActions = require('./routes/arrendatarioActions');
 const conversationRoutes = require('./routes/conversation');
 const acuerdosService = require('./routes/acuerdosService'); 
 const ratingsRoutes = require('./routes/ratingsRoutes'); // Nueva importación
+const { startAgreementManagement } = require('./routes/cronJobs'); // Import agreement management
+
 const { initSocket } = require('./config/socket_io');
 
 require('dotenv').config();
@@ -128,6 +130,10 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     if (isNgrok) {
         console.log(`👉 Ngrok:        ${socketUrlNgrok}`);
     }
+
+        // Start agreement management
+        startAgreementManagement();
+    
 });
 
 // Inicializar Socket.io
