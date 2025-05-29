@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Registrarse con Google - ArrendaFacil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/register.css">
+</head>
+<body class="register-google-page">
+
+  <!-- Sección de Registro -->
+  <section id="registerSection" class="register-section">
+    <div class="register-container">
+      <!-- Animación -->
+      <div class="animation-container" id="authAnimation">
+        <div class="animation-content">
+          <div class="checkmark-circle">
+            <svg width="150" height="150" viewBox="0 0 120 120">
+              <circle class="circle" cx="60" cy="60" r="54"/>
+              <polyline class="check" points="30,60 50,80 90,40"/>
+            </svg>
+          </div>
+          <div class="message">
+            <h1>¡Ya casi terminas tu proceso!</h1>
+            <p>Gracias por elegirnos. Para finalizar tu registro, necesitamos que completes estos datos de tu cuenta.</p>
+          </div>
+
+          
+          <div class="secure-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              <circle cx="12" cy="16" r="1"></circle>
+            </svg>
+          </div>
+          <div class="loading-bar">
+            <div class="loading-progress"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Parte izquierda: Formulario de registro -->
+      <div class="register-left" id="registerLeft" style="display: none; opacity: 0;">
+        <h2>Completa tu Registro con Google</h2>
+        <div class="social-login">
+          <button id="googleSignInBtn" class="social-btn">
+            <img src="/img/google-icon.png" alt="Google Icon"> Crear cuenta con Google
+          </button>
+        </div>
+        <div id="googleError" class="error-message" style="display: none; text-align: center; margin-top: 1rem;"></div>
+        <div id="googleForm" style="display: none;">
+          <form id="registerGoogleForm" class="register-form">
+            <div class="form-group">
+              <label for="full-name">Nombre y Apellido</label>
+              <input type="text" id="full-name" name="full-name" placeholder="Nombre y Apellido" required>
+              <div class="error-message" id="full-name-error" style="display: none;"></div>
+            </div>
+            <div class="form-group phone-group">
+              <label for="phone">Número de Teléfono</label>
+              <div class="phone-input">
+                <select id="country-code" name="country-code">
+                  <option value="+57" data-max-digits="10">🇨🇴 +57</option>
+                  <option value="+54" data-max-digits="10">🇦🇷 +54</option>
+                  <option value="+591" data-max-digits="8">🇧🇴 +591</option>
+                  <option value="+55" data-max-digits="11">🇧🇷 +55</option>
+                  <option value="+56" data-max-digits="9">🇨🇱 +56</option>
+                  <option value="+506" data-max-digits="8">🇨🇷 +506</option>
+                  <option value="+53" data-max-digits="8">🇨🇺 +53</option>
+                  <option value="+593" data-max-digits="9">🇪🇨 +593</option>
+                  <option value="+503" data-max-digits="8">🇸🇻 +503</option>
+                  <option value="+502" data-max-digits="8">🇬🇹 +502</option>
+                  <option value="+504" data-max-digits="8">🇭🇳 +504</option>
+                  <option value="+52" data-max-digits="10">🇲🇽 +52</option>
+                  <option value="+505" data-max-digits="8">🇳🇮 +505</option>
+                  <option value="+507" data-max-digits="8">🇵🇦 +507</option>
+                  <option value="+595" data-max-digits="9">🇵🇾 +595</option>
+                  <option value="+51" data-max-digits="9">🇵🇪 +51</option>
+                  <option value="+1" data-max-digits="10">🇵🇷 +1</option>
+                  <option value="+1" data-max-digits="10">🇩🇴 +1</option>
+                  <option value="+598" data-max-digits="9">🇺🇾 +598</option>
+                  <option value="+58" data-max-digits="10">🇻🇪 +58</option>
+                </select>
+                <input type="tel" id="phone" name="phone" placeholder="Número de Teléfono" required>
+              </div>
+              <div class="error-message" id="phone-error" style="display: none;"></div>
+            </div>
+            <div class="form-group mt-3">
+              <label for="rol">Rol</label>
+              <div class="d-flex align-items-center">
+                <select class="form-control" id="rol" name="rol" required>
+                  <option value="">Selecciona un rol</option>
+                  <option value="arrendador">Arrendador</option>
+                  <option value="arrendatario">Arrendatario</option>
+                </select>
+                <span class="ms-2 help-icon" id="role-help-icon">?</span>
+              </div>
+              <div id="role-tooltip" class="tooltip bg-light border p-2 mt-2" style="display: none;">
+                <strong>Arrendador:</strong> Publica avisos de arriendo.<br>
+                <strong>Arrendatario:</strong> Busca y contacta avisos disponibles.
+              </div>
+              <div class="error-message" id="rol-error" style="display: none;"></div>
+            </div>
+            <button type="submit" class="register-btn">Completar Registro</button>
+          </form>
+        </div>
+      </div>
+      <!-- Parte derecha: Texto de bienvenida -->
+      <div class="register-right" id="registerRight" style="display: none; opacity: 0;">
+        <h1>¡Hola, Bienvenido!</h1>
+        <p>Gracias por registrarte con Google. Completa estos datos para finalizar tu registro.</p>
+      </div>
+    </div>
+  </section>
+
+  <script src="/js/registerGoogle.js"></script>
+</body>
+</html>

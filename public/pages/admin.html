@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Panel de Administrador - ArrendaFacil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <!-- Botón hamburguesa -->
+  <div class="menu-toggle" id="menu-toggle">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- Overlay para el menú móvil -->
+  <div class="menu-overlay" id="menu-overlay"></div>
+
+  <!-- Barra de Navegación -->
+  <nav class="navbar" id="navbar">
+    <a href="dashboard">Panel Principal</a>
+    <a href="revisar-publicaciones">Todas las Publicaciones</a>
+    <a href="logout">Cerrar Sesión</a>
+  </nav>
+
+  <!-- Contenedor principal -->
+  <div class="main-content" id="main-content">
+    <!-- Este div se oculta inicialmente y se muestra después de la animación -->
+    <div class="welcome-message">
+      <h1>Bienvenido a tu panel de administrador</h1>
+      <p>Gestiona publicaciones, reportes y notificaciones de ArrendaFacil.</p>
+    </div>
+
+    <!-- Contenido del Dashboard -->
+    <div class="dashboard-content">
+      <div class="stats-cards">
+        <div class="card">
+          <h3>Publicaciones Pendientes</h3>
+          <p class="stat">0</p>
+        </div>
+        <div class="card">
+          <h3>Publicaciones Activas</h3>
+          <p class="stat">0</p>
+        </div>
+        <div class="card">
+          <h3>Reportes Nuevos</h3>
+          <p class="stat">0</p>
+        </div>
+      </div>
+
+      <!-- Sección de Notificaciones y Historial en dos columnas -->
+      <div class="dashboard-columns">
+        <!-- Sección de Notificaciones -->
+        <div class="notifications-section">
+          <h2>Notificaciones</h2>
+          <div class="notifications-list" id="admin-notifications-list">
+            <!-- Notificaciones de publicaciones pendientes se cargarán aquí -->
+          </div>
+        </div>
+
+        <!-- Sección de Consejos y Guia (Solo para Administradores) -->
+        <div class="tips-section">
+          <h2>Consejos y Guías</h2>
+          <div class="tips-list">
+            <div class="tip-card">
+              <span class="tip-icon">📋</span>
+              <div class="tip-content">
+                <h3>Cómo Revisar Publicaciones</h3>
+                <p>Aprueba o rechaza publicaciones pendientes para mantener la calidad de la plataforma.</p>
+              </div>
+              
+            </div>
+            <div class="tip-card">
+              <span class="tip-icon">📖</span>
+              <div class="tip-content">
+                <h3>Guía de Moderación</h3>
+                <p>Consulta las normas de la plataforma para moderar contenido de manera efectiva.</p>
+              </div>
+           
+            </div>
+            <div class="tip-card">
+              <span class="tip-icon">🚨</span>
+              <div class="tip-content">
+                <h3>Gestionar Reportes</h3>
+                <p>Revisa los reportes de usuarios para mantener un entorno seguro.</p>
+              </div>
+            
+            </div>
+            <div class="tip-card">
+              <span class="tip-icon">📊</span>
+              <div class="tip-content">
+                <h3>Estadísticas de la Plataforma</h3>
+                <p>Analiza las métricas para tomar decisiones informadas.</p>
+              </div>
+            
+            </div>
+          </div>
+        </div>
+        
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Animación de bienvenida -->
+  <div class="welcome-animation" id="welcome-animation">
+    <div class="animation-content">
+      <div class="step step-1 active">
+        <h2>¡Bienvenido a ArrendaFacil!</h2>
+        <p>Gracias por ser parte de nuestro equipo de administración.</p>
+        <img src="/img/welcome.png" alt="Bienvenida" class="step-img">
+      </div>
+      <div class="step step-2">
+        <h2>Revisa las publicaciones</h2>
+        <p>Asegúrate de aprobar o rechazar las publicaciones pendientes.</p>
+        <img src="/img/review-posts.png" alt="Revisar publicaciones" class="step-img">
+      </div>
+      <div class="step step-3">
+        <h2>Gestiona a los usuarios</h2>
+        <p>Administra los reportes de los arrendatarios.</p>
+        <img src="/img/manage-users.png" alt="Gestionar usuarios" class="step-img">
+      </div>
+      <div class="step step-4">
+        <h2>Listo para comenzar</h2>
+        <p>¡Ya estás listo para administrar la plataforma!</p>
+        <button id="finish-animation" class="cta-button">Comenzar</button>
+      </div>
+      <div class="step-dots">
+        <span class="dot active" data-step="1"></span>
+        <span class="dot" data-step="2"></span>
+        <span class="dot" data-step="3"></span>
+        <span class="dot" data-step="4"></span>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

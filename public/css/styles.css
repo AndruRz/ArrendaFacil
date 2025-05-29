@@ -1,0 +1,26 @@
+:root {
+    --primary-color: #1e3a8a; 
+    --secondary-color: #3b82f6; 
+    --accent-color: #f97316; 
+    --background-color: #f8fafc; 
+    --text-color: #1f2937; 
+    --light-gray: #e5e7eb; 
+
+    --login-primary: #2b6b6b; 
+    --login-secondary: #4c9f9f; 
+
+    --register-primary: #6b2b6b;
+    --register-secondary: #9f4c9f; 
+
+    --finish-register-primary: #2b4b6b;
+    --finish-register-secondary: #4c7f9f;
+
+    --arrendador-primary: #2b6b6b; 
+    --arrendador-secondary: #4c9f9f;
+
+    --arrendatario-primary: #4B0082; /* Azul oscuro para arrendatario */
+    --arrendatario-secondary: #7B68EE; /* Azul más claro */
+
+    --admin-primary: #1e3a8a; /* Azul oscuro */
+    --admin-secondary: #3b82f6; /* Azul claro */
+  }

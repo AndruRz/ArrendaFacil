@@ -1,0 +1,737 @@
+/* Estilos generales */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+
+/* Barra de navegación lateral */
+.navbar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 250px;
+  /* Degradado que coincide con el fondo de la página */
+  background: linear-gradient(180deg, rgba(30, 58, 138, 0.95) 0%, rgba(147, 197, 253, 0.85) 100%);
+  /* Aumentamos el desenfoque para un efecto más suave y elegante */
+  backdrop-filter: blur(20px);
+  padding: 2rem 1rem;
+  z-index: 1000;
+  /* Sombra más suave para mejor integración */
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.02);
+  transition: transform 0.3s ease;
+}
+
+/* Estilo de los enlaces */
+.navbar a {
+  color: white;
+  text-decoration: none;
+  margin: 1.2rem 0;
+  font-weight: 500;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Efecto del círculo antes de los enlaces */
+.navbar a::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  /* Color naranja que coincide con el botón "Buscar" */
+  background-color: #f97316;
+  border-radius: 50%;
+  margin-right: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.navbar a:hover::before {
+  opacity: 1;
+  transform: scale(1.5);
+}
+
+/* Efecto hover y active */
+.navbar a:hover,
+.navbar a.active {
+  /* Fondo más claro para hover, pero con un toque que combine con el azul */
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(10px);
+}
+
+/* Logo del navbar */
+.navbar::before {
+  content: 'ArrendaFacil';
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 2rem;
+  letter-spacing: 1px;
+  display: block;
+  padding-bottom: 1rem;
+  /* Borde inferior más sutil */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  width: 100%;
+}
+
+/* Botón hamburguesa para móviles */
+.menu-toggle {
+  display: none;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  z-index: 1010;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.menu-toggle span {
+  display: block;
+  position: absolute;
+  height: 3px;
+  width: 20px;
+  background: white;
+  border-radius: 3px;
+  opacity: 1;
+  left: 10px;
+  transform: rotate(0deg);
+  transition: 0.25s ease-in-out;
+}
+
+.menu-toggle span:nth-child(1) {
+  top: 12px;
+}
+
+.menu-toggle span:nth-child(2),
+.menu-toggle span:nth-child(3) {
+  top: 19px;
+}
+
+.menu-toggle span:nth-child(4) {
+  top: 26px;
+}
+
+.menu-toggle.open span:nth-child(1) {
+  top: 19px;
+  width: 0%;
+  left: 50%;
+}
+
+.menu-toggle.open span:nth-child(2) {
+  transform: rotate(45deg);
+}
+
+.menu-toggle.open span:nth-child(3) {
+  transform: rotate(-45deg);
+}
+
+.menu-toggle.open span:nth-child(4) {
+  top: 19px;
+  width: 0%;
+  left: 50%;
+}
+
+/* Overlay para el menú móvil */
+.menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* Evita clics cuando no está activo */
+}
+
+.menu-overlay.active {
+  display: block;
+  opacity: 1;
+  pointer-events: auto; /* Permite clics cuando está activo */
+}
+
+/* Cuando el navbar está activo, ajustar z-index de otros elementos */
+.navbar.active ~ .hero,
+.navbar.active ~ .section {
+  z-index: 998; /* Coloca el contenido detrás del overlay */
+}
+
+.navbar.active ~ .hero .filter-box {
+  z-index: 998; /* Asegura que la filter-box esté detrás del overlay */
+}
+
+/* Ajuste de contenido para dar espacio al navbar */
+body {
+  padding-left: 250px;
+}
+
+/* Sección Hero con efecto parallax */
+.hero {
+  min-height: 100vh;
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.8), rgba(59, 130, 246, 0.85)), url('/img/fondo.png');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  z-index: 1; /* Por defecto, z-index bajo */
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 150px;
+  background: linear-gradient(to top, var(--background-color), transparent);
+}
+
+.hero h1 {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  animation: fadeInDown 1s ease-out;
+  text-align: center;
+}
+
+.hero p {
+  font-size: 1.4rem;
+  max-width: 700px;
+  margin: 0 auto 3rem;
+  text-align: center;
+  animation: fadeInUp 1s ease-out 0.3s;
+  animation-fill-mode: both;
+}
+
+/* Caja de filtros moderna */
+.filter-box {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+  animation: fadeInUp 1s ease-out 0.6s;
+  animation-fill-mode: both;
+  position: relative;
+  z-index: 1; /* Por defecto, z-index bajo */
+}
+
+.filter-box:hover {
+  transform: translateY(-5px);
+}
+
+.filter-box select,
+.filter-box input {
+  padding: 1rem 1.2rem;
+  border: none;
+  border-radius: 10px;
+  flex: 1;
+  min-width: 180px;
+  font-size: 1rem;
+  background-color: #f1f5f9;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.filter-box select:focus,
+.filter-box input:focus {
+  outline: none;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05), 0 0 0 2px var(--secondary-color);
+}
+
+.filter-box button {
+  background: linear-gradient(135deg, var(--accent-color), #fb923c);
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  min-width: 150px;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+}
+
+.filter-box button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(249, 115, 22, 0.4);
+}
+
+.filter-box button:active {
+  transform: translateY(0);
+}
+
+/* Secciones con diseño moderno */
+.section {
+  padding: 8rem 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  z-index: 1; /* Por defecto, z-index bajo */
+}
+
+.section h2 {
+  font-size: 2.8rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--primary-color);
+  position: relative;
+  display: inline-block;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.section h2::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(to right, var(--secondary-color), var(--accent-color));
+  margin: 0.8rem auto 0;
+  border-radius: 2px;
+}
+
+.section > p {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 4rem;
+  font-size: 1.2rem;
+  color: #64748b;
+}
+
+/* Tarjetas con efecto de elevación */
+#ventajas,
+#pasos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2.5rem;
+}
+
+#ventajas h2,
+#pasos h2,
+#ventajas > p,
+#pasos > p {
+  grid-column: 1 / -1;
+}
+
+.section .card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+  z-index: 1; /* Por defecto, z-index bajo */
+}
+
+.section .card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(to right, var(--secondary-color), var(--accent-color));
+}
+
+.section .card:hover {
+  transform: translateY(-15px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.section .card h3 {
+  color: var(--primary-color);
+  margin-bottom: 1.2rem;
+  font-size: 1.8rem;
+  position: relative;
+  padding-bottom: 0.8rem;
+}
+
+.section .card p {
+  color: #64748b;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+/* Iconos para las tarjetas */
+.section .card::after {
+  content: '';
+  position: absolute;
+  bottom: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  background-color: rgba(59, 130, 246, 0.05);
+  border-radius: 50%;
+  z-index: -1;
+  transition: all 0.4s ease;
+}
+
+.section .card:hover::after {
+  transform: scale(1.5);
+}
+
+/* Animaciones */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--secondary-color);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+/* Estilos para la Sección de Tutorial con Video */
+.tutorial-section {
+  background-color: var(--background-color);
+}
+
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* Relación de aspecto 16:9 (9/16 = 0.5625) */
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+  background: #000;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  margin-bottom: 2rem;
+}
+
+.video-container iframe,
+.video-container video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Estilo para el botón "¡Empieza Ahora!" */
+.cta-button {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--accent-color), #fb923c);
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+  margin: 0 auto;
+  display: block;
+  width: fit-content;
+}
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(249, 115, 22, 0.4);
+}
+
+.cta-button:active {
+  transform: translateY(0);
+}
+
+/* Estilos para la Sección de Preguntas Frecuentes (FAQ) */
+.faq-section {
+  background-color: var(--background-color);
+}
+
+.faq-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background-color: white;
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faq-question {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: none;
+  padding: 1.5rem;
+  width: 100%;
+  text-align: left;
+  font-size: 1.2rem;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.faq-question::after {
+  content: '\25BC'; /* Flecha hacia abajo */
+  font-size: 1rem;
+  color: var(--secondary-color);
+  transition: transform 0.3s ease;
+}
+
+.faq-question.active::after {
+  transform: rotate(180deg); /* Flecha hacia arriba cuando está activo */
+}
+
+.faq-question:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.faq-answer {
+  display: none;
+  padding: 1.5rem;
+  color: #64748b;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.faq-answer.active {
+  display: block;
+}
+
+/* Estilos para la Sección de Llamado a la Acción Final */
+.cta-section {
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.1), rgba(59, 130, 246, 0.15));
+  padding: 4rem 2rem;
+  text-align: center;
+  border-radius: 16px;
+  margin: 2rem auto;
+  max-width: 1400px;
+}
+
+.cta-section h2 {
+  color: var(--primary-color);
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.cta-section p {
+  color: #64748b;
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .navbar {
+    width: 220px;
+  }
+
+  body {
+    padding-left: 220px;
+  }
+
+  .section {
+    padding: 6rem 2rem;
+  }
+
+  .hero h1 {
+    font-size: 3.5rem;
+  }
+
+  .cta-section h2 {
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .menu-overlay {
+    display: block;
+  }
+
+  .navbar {
+    transform: translateX(-100%);
+    width: 250px;
+  }
+
+  .navbar.active {
+    transform: translateX(0);
+  }
+
+  body {
+    padding-left: 0;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+  }
+
+  .filter-box {
+    padding: 1.5rem;
+  }
+
+  .section {
+    padding: 4rem 1.5rem;
+  }
+
+  .section h2 {
+    font-size: 2.2rem;
+  }
+
+  .cta-section {
+    padding: 3rem 1.5rem;
+  }
+
+  .cta-section h2 {
+    font-size: 2rem;
+  }
+
+  .cta-section p {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .filter-box {
+    padding: 1.2rem;
+  }
+
+  .filter-box select,
+  .filter-box input,
+  .filter-box button {
+    min-width: 100%;
+  }
+
+  .section {
+    padding: 3rem 1rem;
+  }
+
+  .section h2 {
+    font-size: 1.8rem;
+  }
+
+  .section .card {
+    padding: 1.5rem;
+  }
+
+  .faq-question {
+    font-size: 1.1rem;
+    padding: 1rem;
+  }
+
+  .faq-answer {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+
+  .cta-section {
+    padding: 2rem 1rem;
+  }
+
+  .cta-section h2 {
+    font-size: 1.8rem;
+  }
+
+  .cta-section p {
+    font-size: 1rem;
+  }
+
+  .cta-button {
+    padding: 0.8rem 2rem;
+    font-size: 0.9rem;
+  }
+}

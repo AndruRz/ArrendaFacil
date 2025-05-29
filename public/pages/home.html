@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sistema de Publicación de Arrendamientos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/home.css">
+</head>
+<body>
+  <!-- Botón hamburguesa -->
+  <div class="menu-toggle" id="menu-toggle">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- Overlay para el menú móvil -->
+  <div class="menu-overlay" id="menu-overlay"></div>
+
+  <!-- Barra de Navegación -->
+  <nav class="navbar" id="navbar">
+    <a href="#home">Inicio</a>
+    <a href="#ventajas">Ventajas</a>
+    <a href="#pasos">Publica tu espacio</a>
+    <a href="#tutorial">Aprende</a>
+    <a href="#Preguntas">Preguntas</a>
+    <a href="/login">Iniciar Sesión</a>
+  </nav>
+
+  <!-- Contenedor principal dinámico -->
+  <main id="main-content">
+    <!-- Sección Hero -->
+    <section class="hero" id="home">
+      <h1>Bienvenido a ArrendaFacil</h1>
+      <p>Aquí puedes encontrar o publicar espacios de arrendamiento de forma rápida y segura.</p>
+      <div class="filter-box">
+        <select id="tipoEspacio">
+          <option value="">Tipo de Espacio</option>
+          <option value="casa">Casa</option>
+          <option value="apartamento">Apartamento</option>
+          <option value="habitacion">Habitación</option>
+          <option value="parqueo">Parqueadero</option>
+          <option value="bodega">Bodega</option>
+        </select>
+        <input type="number" id="precioMin" placeholder="Precio Mínimo">
+        <input type="number" id="precioMax" placeholder="Precio Máximo">
+        <select id="disponibilidad">
+          <option value="">Disponibilidad</option>
+          <option value="inmediata">Entrega Inmediata</option>
+          <option value="futura_1mes">Entrega Futura (1 mes)</option>
+          <option value="futura_3meses">Entrega Futura (3 meses)</option>
+        </select>
+        <button onclick="buscarEspacios()">Buscar</button>
+      </div>
+    </section>
+
+    <!-- Ventajas de Crear una Cuenta -->
+    <section class="section" id="ventajas">
+      <h2>Ventajas de Crear una Cuenta</h2>
+      <p>Descubre por qué miles de usuarios confían en ArrendaFacil para sus necesidades de arrendamiento.</p>
+      <div class="card">
+        <h3>Publicación Rápida</h3>
+        <p>Sube tu espacio en minutos con nuestro formulario intuitivo.</p>
+      </div>
+      <div class="card">
+        <h3>Visibilidad</h3>
+        <p>Llega a miles de interesados en tu unidad residencial.</p>
+      </div>
+      <div class="card">
+        <h3>Soporte 24/7</h3>
+        <p>Nuestro equipo está listo para ayudarte en cualquier momento.</p>
+      </div>
+    </section>
+
+    <!-- Pasos para Subir un Espacio -->
+    <section class="section" id="pasos">
+      <h2>Pasos para Publicar tu Espacio</h2>
+      <p>Sigue estos sencillos pasos para compartir tu espacio con nuestra comunidad.</p>
+      <div class="card">
+        <h3>1. Crea una Cuenta</h3>
+        <p>Regístrate gratis en menos de un minuto.</p>
+      </div>
+      <div class="card">
+        <h3>2. Completa los Detalles</h3>
+        <p>Describe tu espacio y sube fotos atractivas.</p>
+      </div>
+      <div class="card">
+        <h3>3. Publica y Espera</h3>
+        <p>Tu aviso estará visible para miles de usuarios.</p>
+      </div>
+    </section>
+
+    <!-- Sección: Tutorial con Video -->
+    <section class="section tutorial-section" id="tutorial">
+      <h2>Aprende a Crear tu Cuenta y Publicar tu Espacio</h2>
+      <p>Mira este video rápido para aprender cómo registrarte y publicar tu espacio en ArrendaFacil.</p>
+      <div class="video-container">
+        <video controls>
+          <source src="/video/tutorial.mp4" type="video/mp4">
+          <source src="/video/tutorial.webm" type="video/webm">
+          Tu navegador no soporta la reproducción de videos. Puedes descargar el video <a href="/video/tutorial.mp4">aquí</a>.
+        </video>
+      </div>
+    </section>
+
+    <!-- Sección: Preguntas Frecuentes (FAQ) -->
+    <section class="section faq-section" id="Preguntas">
+      <h2>Preguntas Frecuentes</h2>
+      <p>Encuentra respuestas a las dudas más comunes sobre cómo usar ArrendaFacil.</p>
+      <div class="faq-container">
+        <div class="faq-item">
+          <button class="faq-question">¿Cómo creo una cuenta en ArrendaFacil?</button>
+          <div class="faq-answer">
+            <p>Es muy fácil. Haz clic en "Iniciar Sesión" en la página principal, completa el formulario con tu nombre, correo y contraseña, y sigue las instrucciones para verificar tu email.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">¿Cuánto tiempo tarda en publicarse mi espacio?</button>
+          <div class="faq-answer">
+            <p>Una vez que completes todos los detalles y envíes tu publicación, tu espacio estará visible en menos de 5 minutos, siempre que cumpla con nuestras políticas.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">¿Es gratis publicar un espacio?</button>
+          <div class="faq-answer">
+            <p>Sí, publicar un espacio en ArrendaFacil es completamente gratis.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">¿Qué hago si tengo problemas con mi cuenta?</button>
+          <div class="faq-answer">
+            <p>Si tienes algún problema, puedes contactarnos a través de nuestro soporte 24/7. <br>Escríbenos a soportearrendafacil@gmail.com</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

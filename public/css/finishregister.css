@@ -1,0 +1,601 @@
+/* Estilos específicos para la página de finalización de registro */
+/* Basados en el mismo estilo que login.css */
+/* Estilos generales */
+:root {
+    --background-color: #f8fafc;
+    --text-color: #2c3e50;
+    --finish-register-primary: #2b4b6b;
+    --finish-register-secondary: #4c7f9f;
+    --light-gray: #e5e7eb;
+    --accent-color: #475569;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    overflow: hidden;
+}
+
+body.finish-register-page {
+    margin: 0;
+    min-height: 100vh;
+    width: 100vw;
+    padding: 0;
+}
+
+/* Sección de Finalización de Registro */
+.finish-register-section {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background-color);
+    padding: 0;
+    margin: 0;
+}
+
+.finish-register-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    background-color: white;
+    overflow: hidden;
+}
+
+/* Parte izquierda: Texto de bienvenida */
+.finish-register-left {
+    flex: 1;
+    background-color: var(--finish-register-primary);
+    color: white;
+    padding: 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.finish-register-left h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.finish-register-left p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    max-width: 85%;
+}
+
+.login-link {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+.login-link:hover {
+    color: var(--accent-color);
+}
+
+/* Parte derecha: Formulario y Animación */
+.finish-register-right {
+    flex: 1;
+    background-color: var(--background-color);
+    padding: 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.finish-register-right h2 {
+    font-size: 2rem;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Animaciones */
+.animation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    margin: 0 auto;
+    min-height: 100vh;
+    box-sizing: border-box;
+    transition: opacity 0.5s ease-out;
+}
+
+.checkmark-circle {
+    width: 150px;
+    height: 150px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.circle {
+    stroke-dasharray: 360;
+    stroke-dashoffset: 360;
+    stroke-width: 4;
+    stroke: #4CAF50;
+    fill: none;
+    animation: circle-animation 1s ease-in-out forwards;
+}
+
+.check {
+    stroke-dasharray: 120;
+    stroke-dashoffset: 120;
+    stroke-width: 6;
+    stroke: #4CAF50;
+    fill: none;
+    animation: check-animation 0.8s 0.5s ease-in-out forwards;
+}
+
+@keyframes circle-animation {
+    0% { stroke-dashoffset: 360; }
+    100% { stroke-dashoffset: 0; }
+}
+
+@keyframes check-animation {
+    0% { stroke-dashoffset: 120; }
+    100% { stroke-dashoffset: 0; }
+}
+
+.message {
+    opacity: 0;
+    animation: fade-in 1s 1s forwards;
+}
+
+.message h1 {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.message p {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    margin-bottom: 2rem;
+    color: #7f8c8d;
+    line-height: 1.6;
+}
+
+.secure-icon {
+    opacity: 0;
+    animation: bounce-in 0.8s 1.8s forwards;
+}
+
+@keyframes fade-in {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce-in {
+    0% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.1); }
+    70% { transform: scale(0.9); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.loading-bar {
+    width: 100%;
+    height: 6px;
+    background-color: #ecf0f1;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 1rem;
+}
+
+.loading-progress {
+    height: 100%;
+    width: 0;
+    background-color: #4CAF50;
+    border-radius: 3px;
+    animation: loading 3s linear forwards;
+}
+
+@keyframes loading {
+    0% { width: 0; }
+    100% { width: 100%; }
+}
+
+/* Formulario */
+.finish-register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 350px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input {
+    padding: 0.8rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--finish-register-secondary);
+    box-shadow: 0 0 0 3px rgba(76, 127, 159, 0.2);
+}
+
+.form-group input:disabled {
+    background-color: #f1f5f9;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+.error {
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.5rem 0;
+}
+
+.finish-register-btn {
+    background-color: var(--finish-register-secondary);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 6px rgba(76, 127, 159, 0.2);
+}
+
+.finish-register-btn:hover {
+    background-color: var(--finish-register-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(76, 127, 159, 0.3);
+}
+
+.finish-register-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.secondary-btn {
+    background-color: #f1f5f9;
+    color: var(--accent-color);
+    border: none;
+    padding: 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.secondary-btn:hover {
+    background-color: #e2e8f0;
+}
+
+.change-email-btn {
+    background-color: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #ffedd5;
+    padding: 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.change-email-btn:hover {
+    background-color: #ffedd5;
+}
+
+/* Status Animation */
+.status-animation {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.3s ease forwards;
+}
+
+.status-animation.success {
+    border-left: 4px solid #10b981;
+}
+
+.status-animation.error {
+    border-left: 4px solid #ef4444;
+}
+
+.status-animation .icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-animation.success .icon {
+    background-color: #d1fae5;
+    color: #059669;
+}
+
+.status-animation.error .icon {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.status-message {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Media Queries para Responsive Design */
+
+/* Tablets (768px o menos) */
+@media screen and (max-width: 768px) {
+    .finish-register-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .finish-register-left, .finish-register-right {
+        flex: none;
+        width: 100%;
+        padding: 1rem;
+        height: auto;
+    }
+
+    .finish-register-left {
+        justify-content: center;
+        padding: 1.5rem;
+    }
+
+    .finish-register-right {
+        justify-content: flex-start;
+        padding: 1.5rem;
+    }
+
+    .finish-register-left h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .finish-register-left p {
+        font-size: 0.9rem;
+        max-width: 90%;
+    }
+
+    .login-link {
+        font-size: 0.9rem;
+    }
+
+    .finish-register-right h2 {
+        font-size: 1.6rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .animation-container {
+        padding: 1rem;
+    }
+
+    .checkmark-circle {
+        width: 120px;
+        height: 120px;
+    }
+
+    .finish-register-form {
+        max-width: 100%;
+    }
+
+    .form-options {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .finish-register-section {
+        height: auto;
+        min-height: 100vh;
+    }
+}
+
+/* Teléfonos (480px o menos) */
+@media screen and (max-width: 480px) {
+    .finish-register-left, .finish-register-right {
+        padding: 0.8rem;
+    }
+
+    .finish-register-left h1 {
+        font-size: 1.4rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .finish-register-left p {
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-link {
+        font-size: 0.8rem;
+    }
+
+    .finish-register-right h2 {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .animation-container {
+        padding: 1rem;
+    }
+
+    .checkmark-circle {
+        width: 100px;
+        height: 100px;
+    }
+
+    .message h1 {
+        margin-bottom: 0.5rem;
+    }
+
+    .message p {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        font-size: 0.8rem;
+    }
+
+    .form-group input {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .error {
+        font-size: 0.7rem;
+    }
+
+    .finish-register-btn {
+        padding: 0.6rem;
+        font-size: 0.85rem;
+    }
+
+    .secondary-btn, .change-email-btn {
+        padding: 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .status-animation {
+        padding: 10px 15px;
+        top: 10px;
+        right: 10px;
+    }
+
+    .status-message {
+        font-size: 0.8rem;
+    }
+}
+
+/* Ajustes para pantallas muy pequeñas (320px o menos) */
+@media screen and (max-width: 320px) {
+    .finish-register-left, .finish-register-right {
+        padding: 0.6rem;
+    }
+
+    .finish-register-left h1 {
+        font-size: 1.2rem;
+    }
+
+    .finish-register-left p {
+        font-size: 0.7rem;
+    }
+
+    .login-link {
+        font-size: 0.7rem;
+    }
+
+    .finish-register-right h2 {
+        font-size: 1.2rem;
+    }
+
+    .checkmark-circle {
+        width: 100px;
+        height: 100px;
+    }
+
+    .message h1 {
+        margin-bottom: 0.5rem;
+    }
+
+    .message p {
+        margin-bottom: 1rem;
+    }
+
+    .form-group input {
+        padding: 0.4rem;
+        font-size: 0.8rem;
+    }
+
+    .finish-register-btn {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .secondary-btn, .change-email-btn {
+        padding: 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    .status-animation {
+        padding: 8px 12px;
+    }
+
+    .status-message {
+        font-size: 0.7rem;
+    }
+}

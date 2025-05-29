@@ -1,0 +1,37 @@
+{
+  "name": "sistema-de-arrendamiento-v.2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.9.0",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^2.2.0",
+    "browser-image-compression": "^2.0.2",
+    "cloudinary": "^2.6.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "google-auth-library": "^9.15.1",
+    "method-override": "^3.0.0",
+    "moment-timezone": "^0.5.48",
+    "multer": "^1.4.5-lts.2",
+    "mysql2": "^3.14.1",
+    "node-cron": "^4.0.5",
+    "nodemailer": "^6.10.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "pdfkit": "^0.17.1",
+    "sharp": "^0.34.1",
+    "socket.io": "^4.8.1"
+  }
+}
