@@ -13,6 +13,34 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Función auxiliar para obtener la URL de recuperación
+function getPasswordRecoveryUrl() {
+    const environment = process.env.ENVIRONMENT || 'local';
+    const isNgrok = environment === 'ngrok';
+    const port = process.env.PORT || 3000;
+    const ngrokUrl = process.env.SOCKET_URL_NGROK || 'https://<your-ngrok-url>.ngrok-free.app';
+
+    if (isNgrok) {
+        return ngrokUrl;
+    }
+
+    // Obtener la IP local
+    const os = require('os');
+    const interfaces = os.networkInterfaces();
+    let localIP = 'localhost';
+    for (const name in interfaces) {
+        for (const iface of interfaces[name]) {
+            if (iface.family === 'IPv4' && !iface.internal) {
+                localIP = iface.address;
+                break;
+            }
+        }
+    }
+
+    // Usar IP local para la red, localhost para desarrollo
+    return `http://${localIP}:${port}`;
+}
+
 // Función para enviar el correo con el código de verificación
 async function sendVerificationEmail(email, code) {
     try {
@@ -170,73 +198,74 @@ async function sendUnlockVerificationEmail(email, code) {
 // Nueva función para enviar correo de recuperación de contraseña
 async function sendPasswordResetEmail(email, token) {
     try {
-      const resetUrl = `${process.env.URL_PASSWORD_RECOVERY}/reset-password?token=${token}`;
-      const mailOptions = {
-        from: `"ArrendaFacil" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: 'Restablecer tu Contraseña en ArrendaFacil',
-        html: `
-          <div style="font-family: 'Roboto', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; border-radius: 12px; overflow: hidden;">
-            <!-- Encabezado -->
-            <div style="background: linear-gradient(135deg, #2b6b6b, #4c9f9f); padding: 30px; text-align: center;">
-              <h1 style="color: white; font-size: 28px; margin: 0; font-weight: 600;">Restablecer Contraseña 🔐</h1>
-            </div>
-  
-            <!-- Cuerpo -->
-            <div style="padding: 30px; background-color: white; border: 1px solid #e5e7eb; border-radius: 0 0 12px 12px;">
-              <h2 style="color: #2b6b6b; font-size: 22px; margin-top: 0;">Solicitud de Restablecimiento</h2>
-              
-              <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 10px 0;">
-                Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en ArrendaFacil.
-              </p>
-  
-              <!-- Instrucciones -->
-              <div style="margin: 20px 0; padding: 15px; background-color: #f8fafc; border-left: 4px solid #2b6b6b; border-radius: 6px;">
-                <p style="color: #4b5563; font-size: 15px; margin: 0; line-height: 1.5;">
-                  📌 Por favor, haz clic en el botón inferior para establecer una nueva contraseña:
-                </p>
-              </div>
-  
-              <!-- Botón de acción -->
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${resetUrl}" 
-                   style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #2b6b6b, #4c9f9f); 
-                          color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                  Restablecer Contraseña
-                </a>
-              </div>
-  
-              <!-- Nota de validez -->
-              <div style="margin: 20px 0; padding: 15px; background-color: #fef9c3; border-left: 4px solid #ca8a04; border-radius: 6px;">
-                <p style="color: #78350f; font-size: 15px; margin: 0; font-weight: 500;">
-                  ⏳ Este enlace es válido por 15 minutos. Si no solicitaste este cambio, puedes ignorar este correo.
-                </p>
-              </div>
-            </div>
-  
-            <!-- Footer -->
-            <div style="background-color: #f1f5f9; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
-              <p style="color: #6b7280; font-size: 14px; margin: 5px 0;">
-                ¡Gracias por tu confianza en ArrendaFacil! 🛡️
-              </p>
-              <p style="color: #6b7280; font-size: 14px; margin: 5px 0;">
-                Saludos cordiales,<br>El equipo de ArrendaFacil
-              </p>
-            </div>
-          </div>
-        `
-      };
-  
-      const info = await transporter.sendMail(mailOptions);
-      console.log(`Correo de recuperación enviado a ${email}:`, info.messageId);
+        const baseUrl = getPasswordRecoveryUrl();
+        const resetUrl = `${baseUrl}/reset-password?token=${token}`;
+        const mailOptions = {
+            from: `"ArrendaFacil" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: 'Restablecer tu Contraseña en ArrendaFacil',
+            html: `
+                <div style="font-family: 'Roboto', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; border-radius: 12px; overflow: hidden;">
+                    <!-- Encabezado -->
+                    <div style="background: linear-gradient(135deg, #2b6b6b, #4c9f9f); padding: 30px; text-align: center;">
+                        <h1 style="color: white; font-size: 28px; margin: 0; font-weight: 600;">Restablecer Contraseña 🔐</h1>
+                    </div>
+    
+                    <!-- Cuerpo -->
+                    <div style="padding: 30px; background-color: white; border: 1px solid #e5e7eb; border-radius: 0 0 12px 12px;">
+                        <h2 style="color: #2b6b6b; font-size: 22px; margin-top: 0;">Solicitud de Restablecimiento</h2>
+                        
+                        <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 10px 0;">
+                            Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en ArrendaFacil.
+                        </p>
+    
+                        <!-- Instrucciones -->
+                        <div style="margin: 20px 0; padding: 15px; background-color: #f8fafc; border-left: 4px solid #2b6b6b; border-radius: 6px;">
+                            <p style="color: #4b5563; font-size: 15px; margin: 0; line-height: 1.5;">
+                                📌 Por favor, haz clic en el botón inferior para establecer una nueva contraseña:
+                            </p>
+                        </div>
+    
+                        <!-- Botón de acción -->
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${resetUrl}" 
+                               style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #2b6b6b, #4c9f9f); 
+                                      color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                                Restablecer Contraseña
+                            </a>
+                        </div>
+    
+                        <!-- Nota de validez -->
+                        <div style="margin: 20px 0; padding: 15px; background-color: #fef9c3; border-left: 4px solid #ca8a04; border-radius: 6px;">
+                            <p style="color: #78350f; font-size: 15px; margin: 0; font-weight: 500;">
+                                ⏳ Este enlace es válido por 15 minutos. Si no solicitaste este cambio, puedes ignorar este correo.
+                            </p>
+                        </div>
+                    </div>
+    
+                    <!-- Footer -->
+                    <div style="background-color: #f1f5f9; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+                        <p style="color: #6b7280; font-size: 14px; margin: 5px 0;">
+                            ¡Gracias por tu confianza en ArrendaFacil! 🛡️
+                        </p>
+                        <p style="color: #6b7280; font-size: 14px; margin: 5px 0;">
+                            Saludos cordiales,<br>El equipo de ArrendaFacil
+                        </p>
+                    </div>
+                </div>
+            `
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`Correo de recuperación enviado a ${email}:`, info.messageId);
     } catch (error) {
-      console.error('Error al enviar correo de recuperación:', {
-        message: error.message,
-        code: error.code,
-        response: error.response,
-        stack: error.stack
-      });
-      throw new Error('No se pudo enviar el correo de recuperación');
+        console.error('Error al enviar correo de recuperación:', {
+            message: error.message,
+            code: error.code,
+            response: error.response,
+            stack: error.stack
+        });
+        throw new Error('No se pudo enviar el correo de recuperación');
     }
 }
 
