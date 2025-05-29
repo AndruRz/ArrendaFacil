@@ -6,8 +6,6 @@ const path = require('path');
 const PDFDocument = require('pdfkit');
 const { sendAgreementCreatedEmail, sendAgreementPendingEmail, sendContractUploadedEmail, sendContractUploadedNotificationEmail, sendContractAcceptedEmail, sendContractRejectedEmail, sendContractUpdatedEmailTenant, sendContractUpdatedEmailLandlord, sendContractCancelledEmailLandlord, sendContractCancelledEmailTenant} = require('../utils/email');
 const multer = require('multer');
-const { expireAgreements } = require('./cronJobs');
-
 
 router.use((req, res, next) => {
     const userEmail = req.headers['x-user-email'];
@@ -2642,8 +2640,5 @@ router.put('/:id/cancel', async (req, res) => {
         if (connection) connection.release();
     }
 });
-
-
-expireAgreements(); // Ejecutar ahora para probar
 
 module.exports = router;
