@@ -1,0 +1,4 @@
+En caso que falle la base datos usar y modificar:
+
+
+ALTER TABLE notifications CHANGE `is_read` `read` TINYINT(1) NULL DEFAULT 0;
