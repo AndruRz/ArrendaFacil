@@ -2,11 +2,11 @@ const mysql = require('mysql2/promise'); // Usamos mysql2/promise para soporte d
 
 // Configuración del pool de conexiones a la base de datos
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'databaseingenieriasoftware.crayciss4s9t.us-east-2.rds.amazonaws.com',
+  host: process.env.DB_HOST || '',
   port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || 'admin',
-  password: process.env.DB_PASSWORD || 'uaestudiante2025',
-  database: process.env.DB_NAME || 'sistema_arrendamiento_v2',
+  user: process.env.DB_USER || '',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || '',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
